@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>pengzhuangjiance</title>
+	<style>
+		*{
+			margin : 0;
+			padding: 0;
+		}
+		#div1{
+			width: 200px;
+			height: 200px;
+			background: red;
+			position: absolute;
+		}
+		#div2{
+			width: 100px;
+			height: 100px;
+			background: yellow;
+			position: absolute;
+			top: calc(50% - 50px);
+			left: calc(50% - 50px);
+		}
+	</style>
+</head>
+<body>
+	<div id="div1"></div>
+	<div id="div2"></div>
+
+
+
+	<script>
+		// var div2l = div2.offsetLeft;
+		// var div2t = div2.offsetTop;
+		// var div2r = div2l + div2.offsetWidth;
+		// var div2b = div2t + div2.offsetHeight;
+
+		function setBoom(objA, objB) {
+			var objBl = objB.offsetLeft;
+			var objBt = objB.offsetTop;
+			var objBr = objBl + objB.offsetWidth;
+			var objBb = objBt + objB.offsetHeight;
+			var objAr = objA.offsetLeft;
+			var objAb = objA.offsetTop;
+			var objAl = objAr + objA.offsetWidth;
+			var objAt = objAb + objA.offsetHeight;
+
+			if(objAt>objBt && objAl>objBl && objBr>objAr && objBb>objAb) {
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+		//div1 的拖拽
+		div1.onmousedown = function (e) {
+			var ev = e || event;
+			var l = ev.clientX - this.offsetLeft;
+			var t = ev.clientY - this.offsetTop;
+
+			document.onmousemove = function (e) {
+				var ev = e || event;
+				div1.style.left = ev.clientX - l + 'px';
+				div1.style.top = ev.clientY - t + 'px';
+
+				// var div1r = div1.offsetLeft;
+				// var div1b = div1.offsetTop;
+				// var div1l = div1r + div1.offsetWidth;
+				// var div1t = div1b + div1.offsetHeight;
+				
+				//div1与div2的碰撞检测
+				//只有四个条件全部满足的时候才是碰撞，也就是1的底部到2的顶部下面，1的右边到2的左边的右面，1的上边到2的下边的上面，1的下边到2的上边的下面。
+				// if(div1t>div2t && div1l>div2l && div2r>div1r && div2b>div1b) {
+				// 	div2.style.background = 'green';
+				// }else{
+				// 	div2.style.background = 'yellow';
+				// }
+				
+				//直接调用函数
+				if(setBoom(div1,div2)) {
+					div2.style.background = 'green';
+				}else{
+					div2.style.background = 'yellow';
+				}
+			}
+
+			document.onmouseup = function (e) {
+			this.onmousedown = this.onmousemove = null;
+			}
+		}
+		
+
+		
+		
+
+
+
+
+
+
+	</script>
+</body>
+</html>

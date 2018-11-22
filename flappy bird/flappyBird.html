@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0" />
+	<title>flappybird</title>
+	<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+	body{
+		overflow : hidden;
+	}
+		#bird{
+			width : 30px;
+			height : 30px;
+			/*background: url(img/u=3347271268,2099879933&fm=26&gp=0.jpg);*/
+
+			position: absolute;
+			left: 30px;
+			/*top: calc(50% - 50px);*/
+			top: calc(50% - 15px);
+		}
+		#bird img{
+			width: 70px;
+			height: 70px;
+			padding-left: -30px;
+		}
+		.topG{
+			position : absolute;
+			top: 0;
+			width: 50px;
+			background: black;
+			left: 100%;
+		}
+		.bottomG{
+			position : absolute;
+			width: 50px;
+			background: black;
+			left: 100%;
+		}
+	</style>
+</head>
+<body>
+	<div id="bird">
+		<img src="img/u=3347271268,2099879933&fm=26&gp=0.jpg" alt="">
+	</div>
+
+
+	<script>
+		// 思路
+		// 元素（鸟）自由落体的  下落过程
+		// 事件 按 任何的键 元素（鸟） 往上飞一下
+		// 碰撞检测 之后 元素（鸟）挂了
+		// 
+		// 仔细分析结果
+		// 元素（鸟） x轴一直没动 y轴控制
+		// 两根管子，其中一根高度 = 一根随机数
+		//           另外一根的高度 = 总高度 - 一根随机数的高度 - 中间距离。
+
+
+
+		//碰撞检测的封装函数
+		function setBoom(objA, objB) {
+			var objBl = objB.offsetLeft;
+			var objBt = objB.offsetTop;
+			var objBr = objBl + objB.offsetWidth;
+			var objBb = objBt + objB.offsetHeight;
+			var objAr = objA.offsetLeft;
+			var objAb = objA.offsetTop;
+			var objAl = objAr + objA.offsetWidth;
+			var objAt = objAb + objA.offsetHeight;
+
+			if(objAt>objBt && objAl>objBl && objBr>objAr && objBb>objAb) {
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+
+		//小鸟y轴运动
+		var timer = null;
+		var bigTimer = null;
+		var timer2 = null;
+		var iSpeedY = 0;
+		var die = false;
+		var grade = 0;
+		clearInterval(timer);
+		timer = setInterval(()=> {
+			iSpeedY += 0.5;
+			var t = bird.offsetTop + iSpeedY;
+
+			//检测是否淘汰
+			if(t<0) {
+				t = 0;
+				die = true;
+				iSpeedY = 0;
+				clearInterval(bigTimer);
+				clearInterval(timer);
+				clearInterval(timer2);
+				alert("Game over");
+				alert("您的得分为：" + grade);
+			}
+			if(t > innerHeight - bird.offsetHeight) {
+				die = true;
+				iSpeedY = 0;
+				clearInterval(bigTimer);
+				clearInterval(timer);
+				clearInterval(timer2);
+				alert("Game over");
+				alert("您的得分为：" + grade);
+
+			}
+
+			bird.style.top =  t + 'px';
+		},30);
+
+		onkeydown = function (e) {
+			if(die) return;
+			iSpeedY -=10;
+		}
+		//移动端点击事件
+		document.addEventListener('touchstart', function () {
+			if(die) return;
+			iSpeedY -=10;
+		}, false);
+		//障碍物
+		//封装一个随机数的函数
+		function random(min,max) {
+			return Math.random()*(max-min+1) + min;
+		}
+
+		function addZz() {
+
+			grade ++;
+
+			var guanzi = document.createElement('div');
+			guanzi.className = 'topG'; 
+			guanzi.leftDate = '100';
+
+			var guanzi2 = document.createElement('div');
+			guanzi2.className = 'bottomG';
+			// guanzi2.leftDate = '100';
+
+			var num = random(5,55);
+			guanzi.style.height = num + '%';
+			guanzi2.style.height = 100 - num - 35 +'%';
+			guanzi2.style.top = num + 35 + '%';
+			document.body.appendChild(guanzi);
+			document.body.appendChild(guanzi2);
+		}
+		addZz();
+
+		timer2 = setInterval(addZz ,2000);
+
+		bigTimer =  setInterval(() =>{
+			//选中所有管子
+			var allTopG = document.querySelectorAll('.topG');
+			var allBottomG = document.querySelectorAll('.bottomG');
+			for(var i = 0; i < allTopG.length; i++ ) {
+				// allTopG[i].style.left = allTopG[i].leftDate - 0.5 +'%';
+				// allTopG[i].leftDate = allTopG[i].leftDate - 0.5;
+
+				// allBottomG[i].style.left = allBottomG[i].leftDate - 0.5 + '%';
+				// allBottomG[i].leftDate = allBottomG[i].leftDate - 0.5;
+				
+				//清除无用的定时器
+				if(allTopG[i].leftDate == '-10') {
+					document.body.removeChild(allTopG[i]);
+					document.body.removeChild(allBottomG[i]);
+				}
+
+				// 碰撞检测
+				if(setBoom(bird, allTopG[i]) || setBoom(bird, allBottomG[i])) {
+					die = true;
+					iSpeedY = 0;
+					clearInterval(bigTimer);
+				}
+
+
+				allTopG[i].style.left = allBottomG[i].style.left =  allTopG[i].leftDate - 0.5 +'%';
+				allTopG[i].leftDate = allTopG[i].leftDate - 0.5;
+				}
+
+
+		},30)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	</script>
+</body>
+</html>
